@@ -28,7 +28,10 @@ def extractData(fullname):
 
 def metaCreated(fullname):
     meta = extractMeta(fullname)
-    if ((meta['created'] == None) or
+    if meta is None:
+        meta = {}
+    if ((meta.get('created') is None) or
+        (meta['created'] is None) or
         (meta['created'] == '') or
         (pattern.fullmatch(meta['created']) == None)):
             data = extractData(fullname)
@@ -44,7 +47,8 @@ def metaCreated(fullname):
 
 def metaModified(fullname):
     meta = extractMeta(fullname)
-    if ((meta['modified'] == None) or
+    if ((meta.get('modified') is None) or
+        (meta['modified'] is None) or
         (convertDateToSec(meta['modified'])
             <= (os.stat(fullname).st_mtime-10))):
                 data = extractData(fullname)
