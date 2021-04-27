@@ -1,0 +1,58 @@
+import markdown
+import os
+import time
+import yaml
+import re
+
+pattern = re.compile(r'\d\d\d\d-\d\d-\d\d T\d\d:\d\d:\d\d \+0300')
+
+def convertDateToSec(date):
+    return time.mktime(time.strptime(date, '%Y-%m-%d T%X %z'))
+
+def extractMeta(fullname):
+    file = open(fullname, 'r')
+    data = file.read()
+    file.close()
+    md = markdown.Markdown(extensions = ['full_yaml_metadata'])
+    md.convert(data)
+    return md.Meta
+
+def extractData(fullname):
+    file = open(fullname, 'r')
+    lines = file.readlines()
+    del lines[0]
+    mark = lines.index('---\n')
+    lines = lines[mark+1:]
+    data = ''.join([str(line) for line in lines])
+    return data
+
+def metaCreated(fullname):
+    meta = extractMeta(fullname)
+    if ((meta['created'] == None) or
+        (meta['created'] == '') or
+        (pattern.fullmatch(meta['created']) == None)):
+            data = extractData(fullname)
+            meta['created'] = time.strftime(
+                '%Y-%m-%d T%X %z', time.localtime(os.stat(fullname).st_mtime)
+                )
+            file = open(fullname, 'w')
+            file.write('---\n')
+            yaml.dump(meta, file)
+            file.write('---\n')
+            file.write(data)
+            file.close()
+
+def metaModified(fullname):
+    meta = extractMeta(fullname)
+    if ((meta['modified'] == None) or
+        (convertDateToSec(meta['modified'])
+            <= (os.stat(fullname).st_mtime-10))):
+                data = extractData(fullname)
+                meta['modified'] = str(time.strftime('%Y-%m-%d T%X %z',
+                    time.localtime(os.stat(fullname).st_mtime)))
+                file = open(fullname, 'w')
+                file.write('---\n')
+                yaml.dump(meta, file)
+                file.write('---\n')
+                file.write(data)
+                file.close()
