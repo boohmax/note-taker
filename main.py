@@ -22,5 +22,5 @@ for file in walker.collectFile(path):
 for key, value in base.items():
     print(key, '\n',value)
     print(os.stat(key).st_mtime, md_work.convertDateToSec(value['modified']),
-        os.stat(key).st_mtime <= md_work.convertDateToSec(value['modified'])+10,
-        os.stat(key).st_mtime - (md_work.convertDateToSec(value['modified'])+10))
+        os.stat(key).st_mtime <= md_work.convertDateToSec(value['modified'])-10,
+        os.stat(key).st_mtime - (md_work.convertDateToSec(value['modified'])-10))

@@ -14,17 +14,26 @@ def extractMeta(fullname):
     data = file.read()
     file.close()
     md = markdown.Markdown(extensions = ['full_yaml_metadata'])
-    md.convert(data)
-    return md.Meta
+    try:
+        md.convert(data)
+    except ValueError:
+        return None
+    else:
+        return md.Meta
 
 def extractData(fullname):
     file = open(fullname, 'r')
     lines = file.readlines()
-    del lines[0]
-    mark = lines.index('---\n')
-    lines = lines[mark+1:]
-    data = ''.join([str(line) for line in lines])
-    return data
+    try:
+        lines.index('---\n')
+    except ValueError:
+        return ''.join([str(line) for line in lines])
+    else:
+        del lines[0]
+        mark = lines.index('---\n')
+        lines = lines[mark+1:]
+        data = ''.join([str(line) for line in lines])
+        return data
 
 def metaCreated(fullname):
     meta = extractMeta(fullname)
