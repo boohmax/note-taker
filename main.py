@@ -1,7 +1,6 @@
 import argparse
 import walker
 import md_work
-import os
 
 path = '/home/boohmax/work/note-taker/'
 
