@@ -1,13 +1,15 @@
 import markdown
 import os
 import time
+import datetime
 import yaml
 import re
 
-pattern = re.compile(r'\d\d\d\d-\d\d-\d\d T\d\d:\d\d:\d\d \+0300')
+pattern = re.compile(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+03:00')
 
 def convertDateToSec(date):
-    return time.mktime(time.strptime(date, '%Y-%m-%d T%X %z'))
+    return time.mktime(datetime.datetime.strptime(date, '%Y-%m-%dT%X%z')\
+        .timetuple())
 
 def extractMeta(fullname):
     file = open(fullname, 'r')
@@ -35,34 +37,24 @@ def extractData(fullname):
         data = ''.join([str(line) for line in lines])
         return data
 
-def metaCreated(fullname):
+def writeMeta(fullname):
     meta = extractMeta(fullname)
     if meta is None:
         meta = {}
     if ((meta.get('created') is None) or
         (meta['created'] is None) or
-        (meta['created'] == '') or
-        (pattern.fullmatch(meta['created']) == None)):
-            data = extractData(fullname)
-            meta['created'] = time.strftime(
-                '%Y-%m-%d T%X %z', time.localtime(os.stat(fullname).st_mtime)
-                )
-            file = open(fullname, 'w')
-            file.write('---\n')
-            yaml.dump(meta, file)
-            file.write('---\n')
-            file.write(data)
-            file.close()
-
-def metaModified(fullname):
-    meta = extractMeta(fullname)
+        (meta['created'] == '')):
+            meta['created'] = datetime.datetime\
+                .fromtimestamp(os.stat(fullname).st_mtime)\
+                .replace(microsecond=0).astimezone().isoformat()
     if ((meta.get('modified') is None) or
         (meta['modified'] is None) or
-        (convertDateToSec(meta['modified'])
-            <= (os.stat(fullname).st_mtime-10))):
-                data = extractData(fullname)
-                meta['modified'] = str(time.strftime('%Y-%m-%d T%X %z',
-                    time.localtime(os.stat(fullname).st_mtime)))
+        (convertDateToSec(meta['modified']) <=
+            (os.stat(fullname).st_mtime-10))):
+                meta['modified'] = datetime.datetime\
+                    .fromtimestamp(os.stat(fullname).st_mtime)\
+                    .replace(microsecond=0).astimezone().isoformat()
+                data = extractData(fullname) 
                 file = open(fullname, 'w')
                 file.write('---\n')
                 yaml.dump(meta, file)
