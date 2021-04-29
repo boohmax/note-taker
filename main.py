@@ -9,18 +9,13 @@ path = '/home/boohmax/work/note-taker/'
 parser.add_argument('--path', type=str, help='Write path')
 args = parser.parse_args()'''
 
-base = {}
+base_md_file = {}
 
 for file in walker.collectFile(path):
-    md_work.metaCreated(file)
-    md_work.metaModified(file)
-
+    md_work.writeMeta(file)
 
 for file in walker.collectFile(path):
-    base[file] = md_work.extractMeta(file)
+    base_md_file[file] = md_work.extractMeta(file)
 
-for key, value in base.items():
+for key, value in base_md_file.items():
     print(key, '\n',value)
-    print(os.stat(key).st_mtime, md_work.convertDateToSec(value['modified']),
-        os.stat(key).st_mtime <= md_work.convertDateToSec(value['modified'])-10,
-        os.stat(key).st_mtime - (md_work.convertDateToSec(value['modified'])-10))
