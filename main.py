@@ -1,20 +1,19 @@
 import argparse
 import walker
 import md_work
+import logging
 
-path = '/home/boohmax/work/note-taker/'
+logging.basicConfig(level=logging.INFO)
 
-'''parser = argparse.ArgumentParser("""Note-taker""")
-parser.add_argument('--path', type=str, help='Write path')
-args = parser.parse_args()'''
+# path = '/home/boohmax/work/note-taker/fixtures/example-for-test'
 
-base_md_file = {}
+parser = argparse.ArgumentParser("""Note-taker""")
+parser.add_argument('--path', required=True, type=str, help='Repository path')
+args = parser.parse_args()
+path = args.path
+logging.info('Repo path: ' + path)
 
 for file in walker.collectFile(path):
-    md_work.writeMeta(file)
+    logging.debug(file)
 
-for file in walker.collectFile(path):
-    base_md_file[file] = md_work.extractMeta(file)
-
-for key, value in base_md_file.items():
-    print(key, '\n',value)
+    md_work.writeMeta(path, file)

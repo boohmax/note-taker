@@ -4,6 +4,8 @@ import time
 import datetime
 import yaml
 import re
+import git_utils
+import logging
 
 pattern = re.compile(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+03:00')
 
@@ -37,27 +39,38 @@ def extractData(fullname):
         data = ''.join([str(line) for line in lines])
         return data
 
-def writeMeta(fullname):
-    meta = extractMeta(fullname)
+def writeMeta(repo_path, file_path):
+    date_modified = git_utils.get_modify_date(repo_path, file_path)
+    logging.debug('git date: ' + date_modified)
+    meta = extractMeta(file_path)
+    should_write_meta = False
+
+
     if meta is None:
         meta = {}
+
+    if not ((meta.get('modified') is None) or
+        (meta['modified'] is None)):
+            logging.debug('file date:' + meta['modified'])
     if ((meta.get('created') is None) or
         (meta['created'] is None) or
         (meta['created'] == '')):
-            meta['created'] = datetime.datetime\
-                .fromtimestamp(os.stat(fullname).st_mtime)\
-                .replace(microsecond=0).astimezone().isoformat()
+            should_write_meta = True
+            meta['created'] = date_modified
+            logging.debug('added created')
     if ((meta.get('modified') is None) or
         (meta['modified'] is None) or
-        (convertDateToSec(meta['modified']) <=
-            (os.stat(fullname).st_mtime-10))):
-                meta['modified'] = datetime.datetime\
-                    .fromtimestamp(os.stat(fullname).st_mtime)\
-                    .replace(microsecond=0).astimezone().isoformat()
-                data = extractData(fullname) 
-                file = open(fullname, 'w')
-                file.write('---\n')
-                yaml.dump(meta, file)
-                file.write('---\n')
-                file.write(data)
-                file.close()
+        (meta['modified']) != date_modified):
+                should_write_meta = True
+                meta['modified'] = date_modified
+                logging.debug('added modified')
+
+    if should_write_meta:
+        logging.info('update meta for ' + file_path)
+        data = extractData(file_path) 
+        file = open(file_path, 'w')
+        file.write('---\n')
+        yaml.dump(meta, file)
+        file.write('---\n\n')
+        file.write(data)
+        file.close()
