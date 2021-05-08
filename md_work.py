@@ -1,17 +1,7 @@
 import markdown
-import os
-import time
-import datetime
 import yaml
-import re
 import git_utils
 import logging
-
-pattern = re.compile(r'\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\+03:00')
-
-def convertDateToSec(date):
-    return time.mktime(datetime.datetime.strptime(date, '%Y-%m-%dT%X%z')\
-        .timetuple())
 
 def extractMeta(fullname):
     file = open(fullname, 'r')
