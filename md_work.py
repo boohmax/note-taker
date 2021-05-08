@@ -35,21 +35,18 @@ def writeMeta(repo_path, file_path):
     meta = extractMeta(file_path)
     should_write_meta = False
 
-
     if meta is None:
         meta = {}
 
-    if not ((meta.get('modified') is None) or
-        (meta['modified'] is None)):
-            logging.debug('file date:' + meta['modified'])
+    if not meta.get('modified') is None:
+        logging.debug('file date:' + meta['modified'])
+
     if ((meta.get('created') is None) or
-        (meta['created'] is None) or
         (meta['created'] == '')):
             should_write_meta = True
             meta['created'] = date_modified
             logging.debug('added created')
     if ((meta.get('modified') is None) or
-        (meta['modified'] is None) or
         (meta['modified']) != date_modified):
                 should_write_meta = True
                 meta['modified'] = date_modified
@@ -57,7 +54,7 @@ def writeMeta(repo_path, file_path):
 
     if should_write_meta:
         logging.info('update meta for ' + file_path)
-        data = extractData(file_path) 
+        data = extractData(file_path)
         file = open(file_path, 'w')
         file.write('---\n')
         yaml.dump(meta, file)
