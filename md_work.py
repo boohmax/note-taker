@@ -2,7 +2,7 @@ import markdown
 import yaml
 import git_utils
 import logging
-import datetime
+from datetime import datetime, timedelta
 
 def extractMeta(fullname):
     file = open(fullname, 'r')
@@ -34,8 +34,13 @@ def readDate(date):
     if isinstance(date, str) or date is None:
         return date
 
-    if isinstance(date, datetime.datetime):
+    if isinstance(date, datetime):
         return date.isoformat()
+
+def shouldUpdateModifyDate(meta_date, actual_date):
+    diff = abs(datetime.fromisoformat(meta_date) - datetime.fromisoformat(actual_date))
+    logging.debug('Diff: ' + str(diff))
+    return diff > timedelta(seconds=20)
 
 def writeMeta(repo_path, file_path):
     date_modified = git_utils.get_modify_date(repo_path, file_path)
@@ -58,7 +63,10 @@ def writeMeta(repo_path, file_path):
     else:
         meta['created'] = meta_date_created
 
-    if (meta_date_modified is None) or (meta_date_modified != date_modified):
+    if (
+        (meta_date_modified is None) or
+        shouldUpdateModifyDate(meta_date_modified, date_modified)
+    ):
         should_write_meta = True
         meta['modified'] = date_modified
         logging.debug('Add modified to meta')
