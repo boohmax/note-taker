@@ -1,2 +1,5 @@
 fixtures/example-for-test
 *.pyc
+build/*
+dist/*
+main.spec
