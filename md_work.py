@@ -2,6 +2,7 @@ import markdown
 import yaml
 import git_utils
 import logging
+import datetime
 
 def extractMeta(fullname):
     file = open(fullname, 'r')
@@ -29,28 +30,36 @@ def extractData(fullname):
         data = ''.join([str(line) for line in lines])
         return data
 
+def readDate(date):
+    if isinstance(date, str) or date is None:
+        return date
+
+    if isinstance(date, datetime.datetime):
+        return date.isoformat()
+
 def writeMeta(repo_path, file_path):
     date_modified = git_utils.get_modify_date(repo_path, file_path)
-    logging.debug('git date: ' + date_modified)
+    logging.debug('Git date: ' + date_modified)
     meta = extractMeta(file_path)
     should_write_meta = False
 
     if meta is None:
         meta = {}
 
-    if not meta.get('modified') is None:
-        logging.debug('file date:' + meta['modified'])
+    meta_date_created = readDate(meta.get('created'))
+    meta_date_modified = readDate(meta.get('modified'))
 
-    if ((meta.get('created') is None) or
-        (meta['created'] == '')):
-            should_write_meta = True
-            meta['created'] = date_modified
-            logging.debug('added created')
-    if ((meta.get('modified') is None) or
-        (meta['modified']) != date_modified):
-                should_write_meta = True
-                meta['modified'] = date_modified
-                logging.debug('added modified')
+    logging.debug('File date:' + meta_date_modified)
+
+    if (meta_date_created is None) or (meta_date_created) == '':
+        should_write_meta = True
+        meta['created'] = date_modified
+        logging.debug('Add created to meta')
+
+    if (meta_date_modified is None) or (meta_date_modified != date_modified):
+        should_write_meta = True
+        meta['modified'] = date_modified
+        logging.debug('Add modified to meta')
 
     if should_write_meta:
         logging.info('update meta for ' + file_path)

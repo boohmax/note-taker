@@ -19,6 +19,6 @@ path = args.path
 logging.info('Repo path: ' + path)
 
 for file in walker.collectFile(path):
-    logging.debug('Process file: ' + path)
+    logging.debug('=== Process file: ' + file)
 
     md_work.writeMeta(path, file)
