@@ -49,17 +49,21 @@ def writeMeta(repo_path, file_path):
     meta_date_created = readDate(meta.get('created'))
     meta_date_modified = readDate(meta.get('modified'))
 
-    logging.debug('File date:' + meta_date_modified)
+    logging.debug('File date: ' + str(meta_date_modified))
 
     if (meta_date_created is None) or (meta_date_created) == '':
         should_write_meta = True
         meta['created'] = date_modified
         logging.debug('Add created to meta')
+    else:
+        meta['created'] = meta_date_created
 
     if (meta_date_modified is None) or (meta_date_modified != date_modified):
         should_write_meta = True
         meta['modified'] = date_modified
         logging.debug('Add modified to meta')
+    else:
+        meta['modified'] = date_modified
 
     if should_write_meta:
         logging.info('update meta for ' + file_path)
