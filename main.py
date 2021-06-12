@@ -10,7 +10,7 @@ parser.add_argument('--verbose', action=argparse.BooleanOptionalAction, help='Ve
 parser.add_argument(
     '--edge-date',
     type=str,
-    help='Edge date after which meta_modified channge, ISO 8601 date string'
+    help='Date and time of commit after which files will be processed, ISO 8601 date-time string'
 )
 parser.add_argument(
     '--update-gap',

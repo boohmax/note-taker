@@ -47,7 +47,7 @@ def readDate(date):
 def shouldUpdateModifyDate(meta_date, actual_date, edge_date, update_gap):
     if (
         edge_date and
-        datetime.fromisoformat(meta_date) <= datetime.fromisoformat(edge_date)
+        datetime.fromisoformat(actual_date) <= datetime.fromisoformat(edge_date)
     ):
         return False
 
