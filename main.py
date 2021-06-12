@@ -13,36 +13,43 @@ parser.add_argument(
     help='Edge date after which meta_modified channge, ISO 8601 date string'
 )
 parser.add_argument(
-	'--update-gap',
-	type=int,
-	default=30,
-	help='Max delta between metadata update date and last channge commit date, seconds'
+    '--update-gap',
+    type=int,
+    default=30,
+    help='Max delta between metadata update date and last channge commit date, seconds'
 )
 args = parser.parse_args()
 
 verbose = args.verbose
 if verbose:
-	logging.basicConfig(level=logging.DEBUG)
-	logging.debug('Logger level set to DEBUG')
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug('Logger level set to DEBUG')
 else:
-	logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO)
 
 path = args.path
 logging.info('Repo path: ' + path)
 
 edge_date = args.edge_date
 if (edge_date):
-	try:
-		datetime.fromisoformat(edge_date)
-	except Exception as e:
-		logging.error('Cannot parse edge date: ' + e.args[0])
-		exit(1)
-	logging.info('Edge date: ' + str(edge_date))
+    try:
+        datetime.fromisoformat(edge_date)
+    except Exception as e:
+        logging.error('Cannot parse edge date: ' + e.args[0])
+        exit(1)
+    logging.info('Edge date: ' + str(edge_date))
 
 update_gap = args.update_gap
 logging.info('Update gap: ' + str(update_gap))
 
+total_count = 0
+updated_count = 0
+
 for file in walker.collectFile(path):
     logging.debug('=== Process file: ' + file)
 
-    md_work.writeMeta(path, file, edge_date, update_gap)
+    total_count = total_count + 1
+    if (md_work.writeMeta(path, file, edge_date, update_gap)):
+        updated_count = updated_count + 1
+
+logging.info('Updated: ' + str(updated_count) + ' / ' + str(total_count))

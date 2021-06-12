@@ -47,7 +47,7 @@ def readDate(date):
 def shouldUpdateModifyDate(meta_date, actual_date, edge_date, update_gap):
     if (
         edge_date and
-        datetime.fromisoformat(meta_date) > datetime.fromisoformat(edge_date)
+        datetime.fromisoformat(meta_date) <= datetime.fromisoformat(edge_date)
     ):
         return False
 
@@ -95,3 +95,5 @@ def writeMeta(repo_path, file_path, edge_date, update_gap):
         file.write('---\n\n')
         file.write(data)
         file.close()
+
+    return should_write_meta
