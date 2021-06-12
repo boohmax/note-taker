@@ -2,15 +2,15 @@ import argparse
 import walker
 import md_work
 import logging
+from datetime import datetime
 
 parser = argparse.ArgumentParser("""Note-taker""")
 parser.add_argument('--path', required=True, type=str, help='Repository path')
 parser.add_argument('--verbose', action=argparse.BooleanOptionalAction, help='Verbosity level')
 parser.add_argument(
-    '--edge_date',
+    '--edge-date',
     type=str,
-    default='2021-01-01T00:00:00+03:00',
-    help='Edge date after which meta_modified channge'
+    help='Edge date after which meta_modified channge, ISO 8601 date string'
 )
 parser.add_argument(
 	'--update-gap',
@@ -31,6 +31,13 @@ path = args.path
 logging.info('Repo path: ' + path)
 
 edge_date = args.edge_date
+if (edge_date):
+	try:
+		datetime.fromisoformat(edge_date)
+	except Exception as e:
+		logging.error('Cannot parse edge date: ' + e.args[0])
+		exit(1)
+	logging.info('Edge date: ' + str(edge_date))
 
 update_gap = args.update_gap
 logging.info('Update gap: ' + str(update_gap))
@@ -38,4 +45,4 @@ logging.info('Update gap: ' + str(update_gap))
 for file in walker.collectFile(path):
     logging.debug('=== Process file: ' + file)
 
-    md_work.writeMeta(path, file, edge_date,update_gap)
+    md_work.writeMeta(path, file, edge_date, update_gap)

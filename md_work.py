@@ -37,15 +37,18 @@ def readDate(date):
     if isinstance(date, datetime):
         return date.isoformat()
 
-def shouldUpdateModifyDate(meta_date, actual_date, edge_date,update_gap):
-    if (datetime.fromisoformat(meta_date) > datetime.fromisoformat(edge_date)):
-        diff = abs(datetime.fromisoformat(meta_date) - datetime.fromisoformat(actual_date))
-        logging.debug('Diff: ' + str(diff))
-        return diff > timedelta(seconds=update_gap)
-    else:
+def shouldUpdateModifyDate(meta_date, actual_date, edge_date, update_gap):
+    if (
+        edge_date and
+        datetime.fromisoformat(meta_date) > datetime.fromisoformat(edge_date)
+    ):
         return False
 
-def writeMeta(repo_path, file_path, edge_date,update_gap):
+    diff = abs(datetime.fromisoformat(meta_date) - datetime.fromisoformat(actual_date))
+    logging.debug('Diff: ' + str(diff))
+    return diff > timedelta(seconds=update_gap)
+
+def writeMeta(repo_path, file_path, edge_date, update_gap):
     date_modified = git_utils.get_modify_date(repo_path, file_path)
     logging.debug('Git date: ' + date_modified)
     meta = extractMeta(file_path)
@@ -68,7 +71,7 @@ def writeMeta(repo_path, file_path, edge_date,update_gap):
 
     if (
         (meta_date_modified is None) or
-        shouldUpdateModifyDate(meta_date_modified, date_modified, edge_date,update_gap)
+        shouldUpdateModifyDate(meta_date_modified, date_modified, edge_date, update_gap)
     ):
         should_write_meta = True
         meta['modified'] = date_modified
