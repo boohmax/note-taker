@@ -4,11 +4,18 @@ import git_utils
 import logging
 from datetime import datetime, timedelta
 
+md = None
+def initMd():
+    global md
+    if md is None:
+        md = markdown.Markdown(extensions = ['full_yaml_metadata'])
+
 def extractMeta(fullname):
     file = open(fullname, 'r')
     data = file.read()
     file.close()
-    md = markdown.Markdown(extensions = ['full_yaml_metadata'])
+
+    initMd()
     try:
         md.convert(data)
     except ValueError:
