@@ -37,11 +37,15 @@ def readDate(date):
     if isinstance(date, datetime):
         return date.isoformat()
 
-def shouldUpdateModifyDate(meta_date, actual_date, edge_date,update_gap):
-    if (datetime.fromisoformat(meta_date) > datetime.fromisoformat(edge_date)):
-        diff = abs(datetime.fromisoformat(meta_date) - datetime.fromisoformat(actual_date))
+def shouldUpdateModifyDate(
+    meta_date, actual_date, archive,edge_date,update_gap
+    ):
+    if (datetime.fromisoformat(meta_date) > datetime.fromisoformat(edge_date)
+        or archive):
+        diff = abs(datetime.fromisoformat(meta_date)
+            - datetime.fromisoformat(actual_date))
         logging.debug('Diff: ' + str(diff))
-        return diff > timedelta(seconds=update_gap)
+        return diff > timedelta(seconds=update_gap), archive
     else:
         return False
 
@@ -56,6 +60,7 @@ def writeMeta(repo_path, file_path, edge_date,update_gap):
 
     meta_date_created = readDate(meta.get('created'))
     meta_date_modified = readDate(meta.get('modified'))
+    archive = meta.get('archive')
 
     logging.debug('File date: ' + str(meta_date_modified))
 
@@ -68,11 +73,14 @@ def writeMeta(repo_path, file_path, edge_date,update_gap):
 
     if (
         (meta_date_modified is None) or
-        shouldUpdateModifyDate(meta_date_modified, date_modified, edge_date,update_gap)
+        shouldUpdateModifyDate(meta_date_modified, date_modified, archive,
+            edge_date, update_gap)
     ):
         should_write_meta = True
         meta['modified'] = date_modified
+        meta['archive'] = False
         logging.debug('Add modified to meta')
+        logging.debug('Add archive to false')
     else:
         meta['modified'] = date_modified
 
@@ -82,6 +90,6 @@ def writeMeta(repo_path, file_path, edge_date,update_gap):
         file = open(file_path, 'w')
         file.write('---\n')
         yaml.dump(meta, file)
-        file.write('---\n\n')
+        file.write('---\n')
         file.write(data)
         file.close()
