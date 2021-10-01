@@ -41,7 +41,7 @@ def shouldUpdateModifyDate(
     meta_date, actual_date, archive,edge_date,update_gap
     ):
     if (datetime.fromisoformat(meta_date) > datetime.fromisoformat(edge_date)
-        or archive):
+        and archive):
         diff = abs(datetime.fromisoformat(meta_date)
             - datetime.fromisoformat(actual_date))
         logging.debug('Diff: ' + str(diff))
