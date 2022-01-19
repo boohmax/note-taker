@@ -2,4 +2,5 @@ fixtures/example-for-test
 *.pyc
 build/*
 dist/*
+__pycache__/*
 main.spec

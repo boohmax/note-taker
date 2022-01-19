@@ -60,9 +60,11 @@ def writeMeta(repo_path, file_path, edge_date, update_gap):
     logging.debug('Git date: ' + date_modified)
     meta = extractMeta(file_path)
     should_write_meta = False
+    original_meta_exists = True
 
     if meta is None:
         meta = {}
+        original_meta_exists = False
 
     meta_date_created = readDate(meta.get('created'))
     meta_date_modified = readDate(meta.get('modified'))
@@ -92,7 +94,9 @@ def writeMeta(repo_path, file_path, edge_date, update_gap):
         file = open(file_path, 'w')
         file.write('---\n')
         yaml.dump(meta, file)
-        file.write('---\n\n')
+        file.write('---\n')
+        if not original_meta_exists:
+            file.write('\n')
         file.write(data)
         file.close()
 
